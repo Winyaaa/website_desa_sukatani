@@ -60,7 +60,6 @@ export default function LayananTampilan() {
                   {isChatbot && (
                     <Link
                       to="/chatbot"
-                      target="_blank"
                       className="w-full flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3 px-2 md:px-6 rounded-lg md:rounded-xl font-bold text-white transition-all bg-blue-600 shadow-md hover:bg-blue-700 hover:-translate-y-1 text-[10px] md:text-base"
                     >
                       <span className="md:hidden">Buka Asisten</span>
@@ -71,7 +70,6 @@ export default function LayananTampilan() {
                   {isKalender && (
                     <Link
                       to="/agenda"
-                      target="_blank"
                       className="w-full flex items-center justify-center gap-1 md:gap-2 py-2 md:py-3 px-2 md:px-6 rounded-lg md:rounded-xl font-bold text-white transition-all bg-teal-500 shadow-md hover:bg-teal-600 hover:-translate-y-1 text-[10px] md:text-base"
                     >
                       <span className="md:hidden">Lihat Jadwal</span>
