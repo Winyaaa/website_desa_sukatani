@@ -198,8 +198,8 @@ const Chatbot = () => {
                                 {msg.sender === 'user' ? <User size={22} /> : <MessageSquare size={22} />}
                             </div>
 
-                            <div className={`rounded-3xl p-5 shadow-sm border ${msg.sender === 'user' ? 'bg-primary text-primary-foreground border-transparent rounded-tr-sm' : 'bg-card text-card-foreground border-border rounded-tl-sm'}`}>
-                                <div className="text-[15px] leading-relaxed whitespace-pre-line font-medium">{msg.text}</div>
+                            <div className={`rounded-3xl p-4 md:p-5 shadow-sm border ${msg.sender === 'user' ? 'bg-primary text-primary-foreground border-transparent rounded-tr-sm' : 'bg-card text-card-foreground border-border rounded-tl-sm'}`}>
+                                <div className="text-[13px] md:text-[15px] leading-relaxed whitespace-pre-line font-medium">{msg.text}</div>
 
                                 {msg.options && (
                                     <div className="mt-5 flex flex-col gap-3">
@@ -207,7 +207,7 @@ const Chatbot = () => {
                                             <button
                                                 key={opt.id}
                                                 onClick={() => handleSend(opt.id.toString())}
-                                                className="text-left p-3.5 border border-primary/20 bg-primary/5 rounded-xl hover:bg-primary/10 hover:border-primary/40 transition-all font-semibold active:scale-95 cursor-pointer"
+                                                className="text-left p-3 md:p-3.5 border border-primary/20 bg-primary/5 rounded-xl hover:bg-primary/10 hover:border-primary/40 transition-all font-semibold text-[12px] md:text-sm active:scale-95 cursor-pointer"
                                             >
                                                 <span className="text-primary mr-2">{opt.id}.</span> {opt.text}
                                             </button>
