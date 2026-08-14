@@ -1,6 +1,17 @@
+import { useState } from 'react';
 import { MessageSquare, Send, ShieldAlert, UserX, AlertCircle } from 'lucide-react';
 
 export default function PengaduanTampilan() {
+    const [kategori, setKategori] = useState("");
+    const [pesan, setPesan] = useState("");
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const phone = "6282283704925";
+        const text = `*PORTAL PENGADUAN ANONIM*%0A%0A*Kategori:* ${kategori || 'Tidak disebutkan'}%0A*Laporan:* ${pesan}`;
+        window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+    };
+
     return (
         <div className="animate-fade-in relative pt-24 pb-16 bg-background min-h-screen flex flex-col justify-center">
             <div className="container max-w-3xl mx-auto px-4 z-10">
@@ -26,9 +37,7 @@ export default function PengaduanTampilan() {
                         <MessageSquare size={200} />
                     </div>
 
-                    <form className="relative z-10 flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); alert("Terima kasih, laporan anonim Anda telah terkirim!"); }}>
-
-                        {/* Info Box */}
+                    <form className="relative z-10 flex flex-col gap-6" onSubmit={handleSubmit}>                        {/* Info Box */}
                         <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start gap-4">
                             <AlertCircle className="text-blue-500 mt-1 shrink-0" size={24} />
                             <div>
@@ -42,13 +51,18 @@ export default function PengaduanTampilan() {
                         <div className="flex flex-col gap-2">
                             <label htmlFor="kategori" className="font-bold text-foreground text-sm">Kategori Laporan</label>
                             <div className="relative">
-                                <select id="kategori" className="w-full bg-secondary/50 border border-border text-foreground rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all cursor-pointer">
+                                <select
+                                    id="kategori"
+                                    value={kategori}
+                                    onChange={(e) => setKategori(e.target.value)}
+                                    className="w-full bg-secondary/50 border border-border text-foreground rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all cursor-pointer"
+                                >
                                     <option value="">-- Pilih Kategori --</option>
-                                    <option value="infrastruktur">Infrastruktur & Fasilitas Umum</option>
-                                    <option value="pelayanan">Pelayanan Perangkat Desa</option>
-                                    <option value="keamanan">Keamanan Lingkungan</option>
-                                    <option value="sosial">Masalah Sosial & Bantuan</option>
-                                    <option value="lainnya">Lainnya</option>
+                                    <option value="Infrastruktur & Fasilitas Umum">Infrastruktur & Fasilitas Umum</option>
+                                    <option value="Pelayanan Perangkat Desa">Pelayanan Perangkat Desa</option>
+                                    <option value="Keamanan Lingkungan">Keamanan Lingkungan</option>
+                                    <option value="Masalah Sosial & Bantuan">Masalah Sosial & Bantuan</option>
+                                    <option value="Lainnya">Lainnya</option>
                                 </select>
                             </div>
                         </div>
@@ -58,6 +72,8 @@ export default function PengaduanTampilan() {
                             <textarea
                                 id="pesan"
                                 rows="6"
+                                value={pesan}
+                                onChange={(e) => setPesan(e.target.value)}
                                 className="w-full bg-secondary/50 border border-border text-foreground rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
                                 placeholder="Deskripsikan masalah, lokasi, atau saran Anda secara detail di sini..."
                                 required
