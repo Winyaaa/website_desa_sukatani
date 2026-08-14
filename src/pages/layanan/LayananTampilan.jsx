@@ -36,7 +36,7 @@ export default function LayananTampilan() {
       </div>
 
       {/* Grid Layanan Digital */}
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-8 mb-6 md:mb-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-8 mb-6 md:mb-8 max-w-6xl mx-auto">
         {layananDigital.map((item, i) => {
           const Icon = iconMap[item.icon] || MessageSquare;
           const isChatbot = i === 0;
@@ -85,7 +85,7 @@ export default function LayananTampilan() {
       </div>
 
       {/* Grid Layanan Tambahan (Row 1: Bencana & Kontak) */}
-      <div className="grid grid-cols-2 gap-3 md:gap-6 mb-6 max-w-6xl mx-auto items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mb-6 max-w-6xl mx-auto items-start">
 
         {/* Card 1: Siaga & Tanggap Bencana */}
         <div className="p-4 md:p-6 relative rounded-2xl shadow-sm bg-card border border-border h-full flex flex-col hover:shadow-lg transition-shadow group">
