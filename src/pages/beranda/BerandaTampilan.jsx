@@ -18,7 +18,7 @@ export default function BerandaTampilan() {
     <div className="animate-fade-in relative">
 
       {/* Announcement Bar */}
-      <div className="bg-red-600 text-white py-2 px-4 shadow-md w-full overflow-hidden flex items-center mt-[50px] md:mt-[72px]">
+      <div className="bg-gradient-to-r from-blue-600 to-green-500 text-white py-2 px-4 shadow-md w-full overflow-hidden flex items-center mt-[50px] md:mt-[72px]">
         <style>
           {`
             @keyframes marquee {
