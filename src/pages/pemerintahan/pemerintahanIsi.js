@@ -57,7 +57,7 @@ export const pemerintahanIsi = {
         tugas: 'Menangani penyuluhan sosial, keagamaan, dan memaksimalkan pelayanan teknis warga.'
       },
       {
-        name: 'Nama Staff',
+        name: 'Athari Putri Bahlawan',
         role: 'Staff Pelayanan',
         img: '/stafflayanan.png',
         tugas: 'Membantu Kepala Urusan Pelayanan dalam melayani kebutuhan administrasi dan teknis masyarakat desa sehari-hari.'
