@@ -30,7 +30,7 @@ export default function PemerintahanTampilan() {
       <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4 md:pb-8 snap-x snap-mandatory pt-2 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
         {perangkat.daftar.map((staff, index) => (
           <div key={index} className="card bg-card p-4 md:p-6 border border-border rounded-xl shadow-sm text-center flex flex-col items-center transition-transform hover:-translate-y-1 hover:shadow-md min-w-[200px] md:min-w-[260px] snap-center shrink-0 w-56 md:w-72">
-            <div className={`w-20 h-20 md:w-28 md:h-28 rounded-full mb-3 md:mb-5 border-2 md:border-4 border-secondary shadow-sm overflow-hidden flex items-center justify-center ${['Kepala Desa', 'Sekretaris Desa', 'Kepala Seksi Pelayanan', 'Kepala Urusan Perencanaan', 'Staff Pelayanan', 'Kepala Urusan Umum', 'Kepala Urusan Keuangan', 'Kepala Seksi Kesejahteraan', 'Kepala Dusun II', 'Kepala Seksi Pemerintah'].includes(staff.role)
+            <div className={`w-20 h-20 md:w-28 md:h-28 rounded-full mb-3 md:mb-5 border-2 md:border-4 border-secondary shadow-sm overflow-hidden flex items-center justify-center ${['Kepala Desa', 'Sekretaris Desa', 'Kepala Seksi Pelayanan', 'Kepala Urusan Perencanaan', 'Staff Pelayanan', 'Kepala Urusan Umum', 'Kepala Urusan Keuangan', 'Kepala Seksi Kesejahteraan', 'Kepala Dusun I', 'Kepala Dusun II', 'Kepala Dusun III', 'Kepala Seksi Pemerintah'].includes(staff.role)
               ? 'bg-gradient-to-br from-blue-500 to-green-500'
               : ''
               }`}>
