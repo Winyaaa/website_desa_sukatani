@@ -65,7 +65,7 @@ export const pemerintahanIsi = {
       {
         name: 'Rahmat Utomo',
         role: 'Kepala Dusun I',
-        img: '/PaRahmat.jpeg',
+        img: '/PaRahmat.png',
         tugas: 'Membantu Kepala Desa melaksanakan tugas dan pembinaan masyarakat di wilayah Dusun I.'
       },
       {
@@ -77,7 +77,7 @@ export const pemerintahanIsi = {
       {
         name: 'Asep Rohman',
         role: 'Kepala Dusun III',
-        img: '/PaAsep.jpeg',
+        img: '/PaAsep.png',
         tugas: 'Membantu Kepala Desa melaksanakan tugas dan pembinaan masyarakat di wilayah Dusun III.'
       },
       {
