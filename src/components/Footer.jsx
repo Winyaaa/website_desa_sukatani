@@ -1,7 +1,21 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Landmark } from 'lucide-react';
 
+import { kontakIsi as defaultKontakIsi } from '../pages/kontak/kontakIsi';
+
 export default function Footer() {
+  const [data, setData] = useState(defaultKontakIsi);
+  useEffect(() => {
+    const fetchData = () => {
+      const stored = localStorage.getItem('cms_kontak');
+      if(stored) setData(JSON.parse(stored));
+    };
+    fetchData();
+    window.addEventListener('storage', fetchData);
+    return () => window.removeEventListener('storage', fetchData);
+  }, []);
+
   return (
     <footer className="bg-slate-900 pt-16 pb-8 border-t-4 border-primary">
       <div className="container mx-auto px-6">
@@ -57,20 +71,20 @@ export default function Footer() {
                   <MapPin className="text-blue-400 w-4 h-4 md:w-5 md:h-5" />
                 </div>
                 <p className="text-slate-400 leading-relaxed pt-0.5 md:pt-1">
-                  Jl. Raya Sukatani No. 12<br />Kecamatan Ngamprah, Kabupaten Bandung Barat<br />Jawa Barat 40552
+                  {data.informasi.daftar[0].teks.split('\\n').map((line, i) => <span key={i}>{line}<br /></span>)}
                 </p>
               </div>
               <div className="flex items-center gap-3 md:gap-4 group">
                 <div className="bg-slate-800 p-2 md:p-2.5 rounded-lg group-hover:bg-green-500/20 transition-colors">
                   <Phone className="text-green-400 w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <p className="text-slate-400 pt-0.5 md:pt-1">+62 822-8370-4925</p>
+                <p className="text-slate-400 pt-0.5 md:pt-1">{data.informasi.daftar[1].teks}</p>
               </div>
               <div className="flex items-center gap-3 md:gap-4 group">
                 <div className="bg-slate-800 p-2 md:p-2.5 rounded-lg group-hover:bg-yellow-500/20 transition-colors">
                   <Mail className="text-yellow-400 w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <p className="text-slate-400 pt-0.5 md:pt-1">dsukatani13@gmail.com</p>
+                <p className="text-slate-400 pt-0.5 md:pt-1">{data.informasi.daftar[2].teks}</p>
               </div>
             </div>
           </div>

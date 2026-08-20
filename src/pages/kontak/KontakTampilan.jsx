@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { kontakIsi } from './kontakIsi';
@@ -10,7 +11,18 @@ const sosialIcons = {
 };
 
 export default function KontakTampilan() {
-  const { judul, informasi, mediaSosial, peta } = kontakIsi;
+  const [data, setData] = useState(kontakIsi);
+  useEffect(() => {
+    const fetchData = () => {
+      const stored = localStorage.getItem('cms_kontak');
+      if(stored) setData(JSON.parse(stored));
+    };
+    fetchData();
+    window.addEventListener('storage', fetchData);
+    return () => window.removeEventListener('storage', fetchData);
+  }, []);
+
+  const { judul, informasi, mediaSosial, peta } = data;
 
   return (
     <div className="container mx-auto px-4 animate-fade-in pt-32 pb-12">
