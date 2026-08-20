@@ -1,9 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, User, X } from 'lucide-react';
-import { beritaIsi } from './beritaIsi';
+import { beritaIsi as defaultBeritaIsi } from './beritaIsi';
 
 export default function BeritaTampilan() {
-  const { judul, berita, pengumumanResmi, kategori, ringkasanDefault } = beritaIsi;
+  const [dataBerita, setDataBerita] = useState(defaultBeritaIsi);
+
+  useEffect(() => {
+    const loadData = () => {
+      const savedData = localStorage.getItem('cms_berita');
+      if (savedData) {
+        setDataBerita(JSON.parse(savedData));
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
+
+  const { judul, berita, pengumumanResmi, kategori, ringkasanDefault } = dataBerita;
   const [selectedBerita, setSelectedBerita] = useState(null);
 
   const [activeCategory, setActiveCategory] = useState(null);

@@ -11,12 +11,18 @@ import Kontak from './pages/kontak';
 import Layanan from './pages/layanan';
 import Pengaduan from './pages/pengaduan';
 import Chatbot from './pages/chatbot';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import { useLocation } from 'react-router-dom';
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   return (
-    <Router>
-      <Navbar />
-      <div className="page-wrapper">
+    <>
+      {!isAdminRoute && <Navbar />}
+      <div className={isAdminRoute ? "" : "page-wrapper"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profil" element={<Profil />} />
@@ -28,9 +34,19 @@ function App() {
           <Route path="/layanan" element={<Layanan />} />
           <Route path="/pengaduan" element={<Pengaduan />} />
           <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
       </div>
-      <Footer />
+      {!isAdminRoute && <Footer />}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

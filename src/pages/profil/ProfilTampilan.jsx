@@ -1,9 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Map, Users, Target, Activity, MapPin } from 'lucide-react';
-import { profilIsi } from './profilIsi';
+import { profilIsi as defaultProfilIsi } from './profilIsi';
 
 export default function ProfilTampilan() {
-  const { judul, identitas, geografi, demografi, mataPencaharian, peta } = profilIsi;
+  const [dataProfil, setDataProfil] = useState(defaultProfilIsi);
+
+  useEffect(() => {
+    const loadData = () => {
+      const savedData = localStorage.getItem('cms_profil');
+      if (savedData) {
+        setDataProfil(JSON.parse(savedData));
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
+
+  const { judul, identitas, geografi, demografi, mataPencaharian, peta } = dataProfil;
   const [activeTab, setActiveTab] = useState('identitas');
   const [selectedFoto, setSelectedFoto] = useState(null);
 

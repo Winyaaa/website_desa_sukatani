@@ -1,45 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Camera, Music, Sprout, Building, Building2, MapPin, School, HeartPulse, Landmark, Book, BookOpen, Store, Hospital, X } from 'lucide-react';
 import { FaInstagram, FaYoutube } from 'react-icons/fa';
-import { potensiIsi } from './potensiIsi';
+import { potensiIsi as defaultPotensiIsi } from './potensiIsi';
 
 const iconMap = { Camera, Music, Sprout, Building, Store };
 const facilityIconMap = { School, HeartPulse, Landmark, Book, BookOpen, Store, Hospital, Building, Building2 };
 
 export default function PotensiTampilan({ onPilihFasilitas }) {
   const [activeTab, setActiveTab] = useState('wisata');
+  const [dataPotensi, setDataPotensi] = useState(defaultPotensiIsi);
 
   // State untuk menyimpan item yang sedang diklik
   const [selectedGaleri, setSelectedGaleri] = useState(null);
 
   // State reaktif untuk data pertanian agar foto bisa diubah secara real-time
-  const [dataPertanian, setDataPertanian] = useState(potensiIsi.pertanian);
+  const [dataPertanian, setDataPertanian] = useState(defaultPotensiIsi.pertanian);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedData = localStorage.getItem('cms_potensi');
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        setDataPotensi(parsed);
+        setDataPertanian(parsed.pertanian);
+      }
+    };
+    handleStorageChange(); // Load initially
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Fungsi untuk menangani perubahan foto pertanian/peternakan/perkebunan
   const handleGantiFoto = (judulSektor, indexFoto, file) => {
     if (!file) return;
     const imageUrl = URL.createObjectURL(file);
 
-    setDataPertanian((prevData) =>
-      prevData.map((item) => {
-        if (item.judul === judulSektor) {
-          const fotoBaruList = [...item.galeri.foto];
-          fotoBaruList[indexFoto] = imageUrl;
+    const updatedPertanian = dataPertanian.map((item) => {
+      if (item.judul === judulSektor) {
+        const fotoBaruList = [...item.galeri.foto];
+        fotoBaruList[indexFoto] = imageUrl;
 
-          const imgUtama = indexFoto === 0 ? imageUrl : item.img;
+        const imgUtama = indexFoto === 0 ? imageUrl : item.img;
 
-          return {
-            ...item,
-            img: imgUtama,
-            galeri: {
-              ...item.galeri,
-              foto: fotoBaruList,
-            },
-          };
-        }
-        return item;
-      })
-    );
+        return {
+          ...item,
+          img: imgUtama,
+          galeri: {
+            ...item.galeri,
+            foto: fotoBaruList,
+          },
+        };
+      }
+      return item;
+    });
+
+    setDataPertanian(updatedPertanian);
+
+    // Update juga di localStorage agar konsisten (opsional)
+    const newPotensi = { ...dataPotensi, pertanian: updatedPertanian };
+    setDataPotensi(newPotensi);
+    // Wait, local state update for agriculture gallery should probably save to CMS but it's only object URL here so let's ignore persisting object URLs
   };
 
   const {
@@ -53,7 +74,7 @@ export default function PotensiTampilan({ onPilihFasilitas }) {
     umkm,
     fasilitas,
     galeri,
-  } = potensiIsi;
+  } = dataPotensi;
 
   return (
     <div className="container mx-auto px-4 animate-fade-in pt-32 pb-12">

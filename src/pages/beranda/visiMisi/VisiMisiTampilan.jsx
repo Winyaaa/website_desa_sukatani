@@ -1,7 +1,22 @@
 import { Target, Zap, CheckCircle2, ChevronRight, Briefcase } from 'lucide-react';
-import { visiMisiIsi } from './visiMisiIsi';
+import { visiMisiIsi as defaultVisiMisiIsi } from './visiMisiIsi';
+import { useState, useEffect } from 'react';
 
 export default function VisiMisiTampilan() {
+  const [visiMisiIsi, setVisiMisiIsi] = useState(defaultVisiMisiIsi);
+
+  useEffect(() => {
+    const loadData = () => {
+      const savedData = localStorage.getItem('cms_visimisi');
+      if (savedData) {
+        setVisiMisiIsi(JSON.parse(savedData));
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
+
   const { judul, visi, misi, programKerja } = visiMisiIsi;
 
   return (

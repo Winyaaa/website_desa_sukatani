@@ -1,6 +1,21 @@
-import { sejarahIsi } from './sejarahIsi';
+import { sejarahIsi as defaultSejarahIsi } from './sejarahIsi';
+import { useState, useEffect } from 'react';
 
 export default function SejarahTampilan() {
+  const [sejarahIsi, setSejarahIsi] = useState(defaultSejarahIsi);
+
+  useEffect(() => {
+    const loadData = () => {
+      const savedData = localStorage.getItem('cms_sejarah');
+      if (savedData) {
+        setSejarahIsi(JSON.parse(savedData));
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
+
   const { judul, gambar, bagian } = sejarahIsi;
 
   return (

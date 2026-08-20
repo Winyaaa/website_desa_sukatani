@@ -1,12 +1,28 @@
+import { useState, useEffect } from 'react';
 import { ArrowRight, MessageSquare, FileText, Globe, Shield, PhoneCall, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SejarahTampilan from './sejarah/SejarahTampilan';
 import VisiMisiTampilan from './visiMisi/VisiMisiTampilan';
-import {
-  sambutanIsi,
-} from './berandaIsi';
+import { sambutanIsi as defaultSambutan } from './berandaIsi';
 
 export default function BerandaTampilan() {
+  const [dataSambutan, setDataSambutan] = useState({
+    ...defaultSambutan,
+    foto: '/kepaladesa.png'
+  });
+
+  useEffect(() => {
+    const loadData = () => {
+      const savedData = localStorage.getItem('cms_beranda');
+      if (savedData) {
+        setDataSambutan(JSON.parse(savedData));
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
+
   const localServices = [
     { title: 'Layanan Administrasi', desc: 'Pembuatan KK, KTP, dan Akta Kelahiran.', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-500/10', path: '/layanan' },
     { title: 'Informasi Publik', desc: 'Akses transparansi dana dan kebijakan desa.', icon: Globe, color: 'text-green-500', bg: 'bg-green-500/10', path: '/berita' },
@@ -74,7 +90,7 @@ export default function BerandaTampilan() {
             <div className="w-full md:w-5/12 flex justify-center shrink-0">
               <div className="relative group perspective">
                 <div className="w-48 h-48 md:w-80 md:h-80 rounded-full overflow-hidden border-4 md:border-8 border-background shadow-2xl bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center transform transition-transform duration-500 group-hover:scale-105">
-                  <img src="/kepaladesa.png" alt="Kepala Desa Sukatani" className="w-full h-full object-contain focus:outline-none" onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800"; }} />
+                  <img src={dataSambutan.foto || "/kepaladesa.png"} alt={dataSambutan.nama} className="w-full h-full object-contain focus:outline-none" onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800"; }} />
                 </div>
                 <div className="absolute inset-0 rounded-full shadow-[inset_0_-10px_20px_rgba(0,0,0,0.1)] md:shadow-[inset_0_-20px_40px_rgba(0,0,0,0.1)] pointer-events-none"></div>
               </div>
@@ -91,15 +107,15 @@ export default function BerandaTampilan() {
               <div className="relative">
                 <span className="absolute -left-2 md:-left-6 top-0 md:-top-4 text-4xl md:text-6xl text-primary/20 font-serif">"</span>
                 <p className="text-xs md:text-lg text-muted/90 leading-relaxed max-w-2xl font-medium relative z-10 italic">
-                  {sambutanIsi.kutipan || "Puji syukur kita panjatkan ke hadirat Tuhan Yang Maha Esa. Website ini hadir sebagai wujud transparansi dan pelayanan optimal kami bagi warga Desa Sukatani. Kami berharap masyarakat bisa lebih mudah mengakses informasi, mengurus administrasi, serta mengetahui berbagai potensi desa yang kita cintai."}
+                  {dataSambutan.kutipan}
                 </p>
               </div>
 
               <div className="mt-10 flex items-center gap-4">
                 <div className="w-12 h-1 bg-gradient-to-r from-blue-500 to-green-500 rounded-full"></div>
                 <div>
-                  <h3 className="text-xl font-bold text-foreground">{sambutanIsi.nama || "Dede Supriadi"}</h3>
-                  <p className="text-primary font-medium">{sambutanIsi.jabatan || "Kepala Desa Sukatani"}</p>
+                  <h3 className="text-xl font-bold text-foreground">{dataSambutan.nama}</h3>
+                  <p className="text-primary font-medium">{dataSambutan.jabatan}</p>
                 </div>
               </div>
             </div>

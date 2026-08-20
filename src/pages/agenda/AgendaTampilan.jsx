@@ -1,10 +1,25 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Calendar as CalendarIcon, Clock, MapPin, ChevronLeft, ChevronRight, X, Star } from 'lucide-react';
 import Holidays from 'date-holidays';
 import { agendaIsi } from './agendaIsi';
 
 export default function AgendaTampilan() {
-  const { judul, daftar } = agendaIsi;
+  const [data, setData] = useState(() => {
+    const saved = localStorage.getItem('cms_agenda');
+    return saved ? JSON.parse(saved) : agendaIsi;
+  });
+
+  // Listen for real-time changes
+  useEffect(() => {
+    const handleStorage = () => {
+      const saved = localStorage.getItem('cms_agenda');
+      if (saved) setData(JSON.parse(saved));
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const { judul, daftar } = data;
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const [currentDate, setCurrentDate] = useState(new Date(2026, 7, 1));

@@ -34,6 +34,7 @@ export default function Navbar() {
     { name: 'Agenda', path: '/agenda' },
     { name: 'Kontak', path: '/kontak' },
     { name: 'Layanan', path: '/layanan' },
+    { name: 'Login Admin', path: '/admin-login' },
   ];
 
   return (
@@ -50,12 +51,16 @@ export default function Navbar() {
         <div className="flex items-center gap-3 md:gap-4">
 
           {/* MENU DESKTOP */}
-          <div className="hidden md:flex gap-6 mr-2">
+          <div className="hidden md:flex items-center gap-6 mr-2">
             {navItems.map(item => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`font-medium transition-all duration-300 hover:text-green-500 hover:scale-105 ${location.pathname === item.path ? 'text-blue-600 font-bold' : 'text-foreground/80'}`}
+                className={
+                  item.name === 'Login Admin'
+                    ? "px-4 py-1.5 bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-full font-semibold transition-all hover:scale-105 hover:shadow-md hover:shadow-blue-500/20"
+                    : `font-medium transition-all duration-300 hover:text-green-500 hover:scale-105 ${location.pathname === item.path ? 'text-blue-600 font-bold' : 'text-foreground/80'}`
+                }
               >
                 {item.name}
               </Link>
@@ -88,15 +93,19 @@ export default function Navbar() {
           }`}
       >
         <div className="flex flex-col p-2">
-          {navItems.map(item => (
+          {navItems.map((item, idx) => (
             <Link
               key={item.path}
               to={item.path}
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`py-3 px-4 font-semibold text-sm rounded-xl transition-all flex items-center gap-2 ${location.pathname === item.path
-                ? 'bg-blue-500/10 text-blue-600'
-                : 'text-foreground hover:bg-secondary/80'
-                }`}
+              className={
+                item.name === 'Login Admin'
+                  ? "mt-2 py-3 px-4 font-bold text-sm bg-gradient-to-r from-blue-600 to-green-500 text-white rounded-xl transition-all shadow-md shadow-blue-500/20 text-center hover:scale-[1.02]"
+                  : `py-3 px-4 font-semibold text-sm rounded-xl transition-all flex items-center gap-2 ${location.pathname === item.path
+                    ? 'bg-blue-500/10 text-blue-600'
+                    : 'text-foreground hover:bg-secondary/80'
+                  }`
+              }
             >
               {item.name}
             </Link>

@@ -1,7 +1,23 @@
-import { pemerintahanIsi } from './pemerintahanIsi';
+import { pemerintahanIsi as defaultPemerintahanIsi } from './pemerintahanIsi';
+import { useState, useEffect } from 'react';
 
 export default function PemerintahanTampilan() {
-  const { judul, struktur, perangkat, kontak } = pemerintahanIsi;
+  const [dataPemerintahan, setDataPemerintahan] = useState(defaultPemerintahanIsi);
+
+  useEffect(() => {
+    // Membaca dari localStorage secara berkala (atau saat pertama kali buka)
+    const loadData = () => {
+      const savedData = localStorage.getItem('cms_pemerintahan');
+      if (savedData) {
+        setDataPemerintahan(JSON.parse(savedData));
+      }
+    };
+    loadData();
+    window.addEventListener('storage', loadData);
+    return () => window.removeEventListener('storage', loadData);
+  }, []);
+
+  const { judul, struktur, perangkat, kontak } = dataPemerintahan;
 
   return (
     <div className="container mx-auto px-4 animate-fade-in pt-32 pb-12">
