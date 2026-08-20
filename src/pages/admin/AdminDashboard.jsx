@@ -1002,6 +1002,44 @@ function AdminBerita() {
                             </div>
 
                             <div className="border-t border-border pt-4">
+                                <label className="block text-sm font-semibold mb-1">Galeri Foto di Dalam Berita / Dokumentasi (Opsional)</label>
+                                <p className="text-xs text-muted-foreground mb-3">Foto-foto ini akan disusun sebagai galeri di dalam artikel berita (bukan foto utama).</p>
+                                <div className="flex gap-2 overflow-x-auto pb-4">
+                                    {(modalData.modalImages || []).map((imgUrl, fIdx) => (
+                                        <div key={fIdx} className="relative group shrink-0 w-24 h-24 md:w-32 md:h-32">
+                                            <img src={imgUrl} alt={`Foto ${fIdx + 1}`} className="w-full h-full object-cover rounded-xl border border-border shadow-sm" />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newModalImages = [...(modalData.modalImages || [])];
+                                                    newModalImages.splice(fIdx, 1);
+                                                    setModalData({ ...modalData, modalImages: newModalImages });
+                                                }}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-lg"
+                                                title="Hapus foto ini"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <label className="shrink-0 w-24 h-24 md:w-32 md:h-32 flex flex-col gap-2 items-center justify-center bg-background border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-secondary/50 transition-colors">
+                                        <Plus className="w-6 h-6 text-muted-foreground" />
+                                        <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">Tambah Foto</span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => handlePhotoUploadBase64(e, (dataUrl) => {
+                                                const newModalImages = [...(modalData.modalImages || [])];
+                                                newModalImages.push(dataUrl);
+                                                setModalData({ ...modalData, modalImages: newModalImages });
+                                            })}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-border pt-4">
                                 <label className="block text-sm font-semibold mb-1">Ringkasan Berita (Tampil di beranda)</label>
                                 <textarea
                                     value={modalData.ringkasan}
@@ -1058,22 +1096,23 @@ function AdminPemerintahan() {
         }
     }, []);
 
-    const saveData = (newData) => {
+    const saveData = (newData, message = 'Data Pemerintahan berhasil diperbarui!') => {
         setData(newData);
         try {
             localStorage.setItem('cms_pemerintahan', JSON.stringify(newData));
             window.dispatchEvent(new Event('storage'));
+            showSuccess(message);
         } catch (e) {
-            showSuccess('');
+            showError('Gagal menyimpan data.');
         }
     };
 
     const handleHapus = (index) => {
-        if (window.confirm('Hapus aparatur ini? Tindakan ini akan langsung tampil di website masyarakat!')) {
+        showConfirmAction('Hapus Aparatur?', 'Tindakan ini akan menghapus aparatur dari website masyarakat. Lanjutkan?', 'Hapus', '#ef4444', () => {
             const newData = { ...data };
             newData.perangkat.daftar.splice(index, 1);
-            saveData(newData);
-        }
+            saveData(newData, 'Aparatur desa berhasil dihapus');
+        });
     };
 
     const openModalForEdit = (index) => {
@@ -1109,7 +1148,7 @@ function AdminPemerintahan() {
             });
         }
 
-        saveData(newData);
+        saveData(newData, modalData.index !== null ? 'Data aparatur berhasil diperbarui!' : 'Aparatur desa baru berhasil ditambahkan!');
         setShowModal(false);
     };
 
@@ -1151,8 +1190,7 @@ function AdminPemerintahan() {
                     ...newData.perangkat.daftar[index],
                     img: dataUrl
                 };
-                saveData(newData);
-                showSuccess('');
+                saveData(newData, 'Foto aparatur berhasil diperbarui!');
             };
             img.src = event.target.result;
         };
@@ -1165,7 +1203,72 @@ function AdminPemerintahan() {
     };
 
     return (
-        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 relative">
+        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 relative space-y-8">
+
+            {/* Editor Bagan Struktur Organisasi */}
+            <div className="border border-border p-5 rounded-2xl bg-secondary/10">
+                <h3 className="font-bold text-lg mb-4">Pengaturan Bagan Struktur Organisasi</h3>
+                <div className="flex flex-col md:flex-row gap-6">
+                    <div className="w-full md:w-1/2 space-y-4">
+                        <div>
+                            <label className="block text-sm font-semibold mb-1">Judul Bagan</label>
+                            <input
+                                type="text"
+                                value={data.struktur?.judul || ''}
+                                onChange={(e) => {
+                                    const newData = { ...data };
+                                    if (!newData.struktur) newData.struktur = {};
+                                    newData.struktur.judul = e.target.value;
+                                    setData(newData);
+                                }}
+                                className="w-full px-4 py-2 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold mb-1">Keterangan / Deskripsi Bagan</label>
+                            <textarea
+                                value={data.struktur?.keterangan || ''}
+                                onChange={(e) => {
+                                    const newData = { ...data };
+                                    if (!newData.struktur) newData.struktur = {};
+                                    newData.struktur.keterangan = e.target.value;
+                                    setData(newData);
+                                }}
+                                className="w-full px-4 py-2 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50"
+                                rows="3"
+                            ></textarea>
+                        </div>
+                        <button type="button" onClick={() => saveData(data, 'Teks bagan struktur organisasi berhasil disimpan!')} className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
+                            <Save className="w-4 h-4" /> Simpan Teks Bagan
+                        </button>
+                    </div>
+                    <div className="w-full md:w-1/2">
+                        <label className="block text-sm font-semibold mb-1">Gambar Bagan Organisasi</label>
+                        <div className="border-2 border-dashed border-border rounded-xl p-2 relative group overflow-hidden bg-background">
+                            <img src={data.struktur?.gambar || 'https://placehold.co/800x400/e2e8f0/475569?text=Kosong'} alt="Bagan Organisasi" className="w-full h-auto object-contain rounded-lg max-h-56" />
+                            <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                                <span className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2"><Edit2 className="w-4 h-4" /> Ganti Gambar Bagan</span>
+                                <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (!file) return;
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                        const newData = { ...data };
+                                        if (!newData.struktur) newData.struktur = {};
+                                        newData.struktur.gambar = event.target.result;
+                                        saveData(newData, 'Gambar bagan struktur organisasi sukses diunggah!');
+                                    }
+                                    reader.readAsDataURL(file);
+                                }} />
+                            </label>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">Gambar langsung tersimpan otomatis setelah dipilih. Gunakan resolusi lebar (Landscape).</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr className="border-border" />
+
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
                     <h2 className="text-xl font-bold">Susunan Aparatur Desa</h2>
@@ -1217,6 +1320,76 @@ function AdminPemerintahan() {
                         </div>
                     </div>
                 ))}
+            </div>
+
+            <hr className="border-border my-8" />
+
+            <div className="border border-border p-5 rounded-2xl bg-secondary/10">
+                <h3 className="font-bold text-lg mb-4">Kontak Administratif Kantor Desa</h3>
+                <p className="text-xs text-muted-foreground mb-4">Kontak ini akan tampil di bagian bawah halaman Pemerintahan.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-semibold mb-1">Judul Kotak Kontak</label>
+                        <input
+                            type="text"
+                            value={data.kontak?.judul || ''}
+                            onChange={(e) => {
+                                const newData = { ...data };
+                                if (!newData.kontak) newData.kontak = {};
+                                newData.kontak.judul = e.target.value;
+                                setData(newData);
+                            }}
+                            className="w-full px-4 py-2 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold mb-1">Deskripsi Utama</label>
+                        <input
+                            type="text"
+                            value={data.kontak?.deskripsi || ''}
+                            onChange={(e) => {
+                                const newData = { ...data };
+                                if (!newData.kontak) newData.kontak = {};
+                                newData.kontak.deskripsi = e.target.value;
+                                setData(newData);
+                            }}
+                            className="w-full px-4 py-2 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold mb-1">Teks Telepon / WA</label>
+                        <input
+                            type="text"
+                            value={data.kontak?.telepon || ''}
+                            onChange={(e) => {
+                                const newData = { ...data };
+                                if (!newData.kontak) newData.kontak = {};
+                                newData.kontak.telepon = e.target.value;
+                                setData(newData);
+                            }}
+                            className="w-full px-4 py-2 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-semibold mb-1">Teks Email</label>
+                        <input
+                            type="text"
+                            value={data.kontak?.email || ''}
+                            onChange={(e) => {
+                                const newData = { ...data };
+                                if (!newData.kontak) newData.kontak = {};
+                                newData.kontak.email = e.target.value;
+                                setData(newData);
+                            }}
+                            className="w-full px-4 py-2 rounded-xl border border-border bg-background focus:ring-2 focus:ring-primary/50"
+                        />
+                    </div>
+                </div>
+                <div className="mt-4">
+                    <button type="button" onClick={() => saveData(data, 'Kontak administratif berhasil diperbarui!')} className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
+                        <Save className="w-4 h-4" /> Simpan Pengaturan Kontak
+                    </button>
+                </div>
             </div>
 
             {/* Custom Modal Popup */}
@@ -1284,14 +1457,21 @@ function AdminPotensi() {
         }
     }, []);
 
-    const saveData = (e) => {
-        if (e) e.preventDefault();
+    const saveData = (eOrNewData) => {
+        if (eOrNewData && eOrNewData.preventDefault) eOrNewData.preventDefault();
+
+        let dataToSave = data;
+        if (eOrNewData && !eOrNewData.preventDefault) {
+            dataToSave = eOrNewData;
+            setData(dataToSave);
+        }
+
         try {
-            localStorage.setItem('cms_potensi', JSON.stringify(data));
+            localStorage.setItem('cms_potensi', JSON.stringify(dataToSave));
             window.dispatchEvent(new Event('storage'));
-            showSuccess('');
+            showSuccess('Data Potensi berhasil disimpan!');
         } catch (error) {
-            showSuccess('');
+            showError('Gagal menyimpan data.');
         }
     };
 
@@ -1352,7 +1532,7 @@ function AdminPotensi() {
                         onClick={() => setSubTab(tab)}
                         className={`px-4 py-3 font-semibold transition-colors capitalize ${subTab === tab ? 'border-b-2 border-primary text-primary bg-card/50' : 'text-foreground/70 hover:bg-secondary/50'}`}
                     >
-                        {tab === 'galeri' ? 'Galeri Desa' : tab}
+                        {tab === 'galeri' ? 'Galeri Desa' : tab === 'umkm' ? 'UMKM' : tab}
                     </button>
                 ))}
             </div>
@@ -1445,15 +1625,6 @@ function AdminPotensi() {
                                 <div key={index} className="p-4 border border-border rounded-xl bg-secondary/20">
                                     <h3 className="font-bold text-lg mb-3">{item.judul || 'Bidang Pertanian'}</h3>
                                     <div className="space-y-3">
-                                        <div className="flex gap-4 items-center">
-                                            <img src={(item.img && item.img.length > 5) ? item.img : 'https://placehold.co/100x100/e2e8f0/475569?text=Kosong'} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-2 border-secondary shrink-0 bg-background" onError={(e) => { e.target.src = 'https://placehold.co/100x100/e2e8f0/475569?text=Gagal' }} />
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => handlePhotoUploadBase64(e, (dataUrl) => handleArrayChange('pertanian', index, 'img', dataUrl))}
-                                                className="flex-1 px-4 py-2 text-sm rounded-xl border border-border bg-background"
-                                            />
-                                        </div>
                                         <input
                                             type="text"
                                             value={item.judul}
@@ -1465,7 +1636,91 @@ function AdminPotensi() {
                                             onChange={(e) => handleArrayChange('pertanian', index, 'deskripsi', e.target.value)}
                                             rows="3"
                                             className="w-full px-4 py-2 rounded-xl border border-border bg-background"
+                                            placeholder="Deskripsi"
                                         />
+
+                                        <div className="mt-4 pt-4 border-t border-border">
+                                            <label className="block text-sm font-semibold mb-2">Galeri Foto Tambahan (Slide)</label>
+                                            <div className="flex gap-2 overflow-x-auto pb-4">
+                                                {item.galeri?.foto?.map((imgUrl, fIdx) => (
+                                                    <div key={fIdx} className="relative group shrink-0 w-24 h-24">
+                                                        <img src={imgUrl} alt={`Foto ${fIdx + 1}`} className="w-full h-full object-cover rounded-xl border border-border" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const newGaleri = { ...item.galeri };
+                                                                newGaleri.foto.splice(fIdx, 1);
+                                                                handleArrayChange('pertanian', index, 'galeri', newGaleri);
+                                                            }}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-lg"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                <label className="shrink-0 w-24 h-24 flex items-center justify-center bg-background border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-secondary/50 transition-colors">
+                                                    <Plus className="w-6 h-6 text-muted-foreground" />
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => handlePhotoUploadBase64(e, (dataUrl) => {
+                                                            const newGaleri = { ...item.galeri };
+                                                            if (!newGaleri.foto) newGaleri.foto = [];
+                                                            newGaleri.foto.push(dataUrl);
+                                                            handleArrayChange('pertanian', index, 'galeri', newGaleri);
+                                                        })}
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-2 pb-2">
+                                            <label className="block text-sm font-semibold mb-2">Video (1 Video)</label>
+                                            <div className="flex items-center gap-4">
+                                                {item.galeri?.video && item.galeri.video.length > 0 && item.galeri.video[0] ? (
+                                                    <div className="relative shrink-0 w-32 h-20 bg-secondary rounded-lg overflow-hidden flex items-center justify-center group border border-border">
+                                                        <p className="text-primary text-xs font-semibold px-2 text-center break-words line-clamp-2">Video Tersimpan</p>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const newGaleri = { ...item.galeri };
+                                                                newGaleri.video = [];
+                                                                handleArrayChange('pertanian', index, 'galeri', newGaleri);
+                                                            }}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-md"
+                                                        >
+                                                            <X className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-xs text-muted-foreground shrink-0 border border-dashed border-border p-3 rounded-lg">Belum ada video.</p>
+                                                )}
+                                                <div className="flex flex-col gap-1 w-full">
+                                                    <input
+                                                        type="file"
+                                                        accept="video/*"
+                                                        className="w-full px-4 py-2 text-sm rounded-xl border border-border bg-background"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files[0];
+                                                            if (file) {
+                                                                if (file.size > 2 * 1024 * 1024) {
+                                                                    Swal.fire({ icon: 'warning', title: 'Peringatan', text: 'Ukuran video lebih dari 2MB mungkin membuat local storage penuh dan gagal menyimpan.' });
+                                                                }
+                                                                const reader = new FileReader();
+                                                                reader.onload = (event) => {
+                                                                    const newGaleri = { ...item.galeri };
+                                                                    newGaleri.video = [event.target.result];
+                                                                    handleArrayChange('pertanian', index, 'galeri', newGaleri);
+                                                                };
+                                                                reader.readAsDataURL(file);
+                                                            }
+                                                        }}
+                                                    />
+                                                    <span className="text-[10px] text-muted-foreground ml-2">Pilih file video (maksimal disarankan 2MB agar tidak memberatkan browser).</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -1475,25 +1730,24 @@ function AdminPotensi() {
                     {subTab === 'umkm' && (
                         <div className="space-y-8">
                             {data.umkm.map((item, index) => (
-                                <div key={index} className="p-4 border border-border rounded-xl bg-secondary/20">
-                                    <h3 className="font-bold text-lg mb-3">UMKM {index + 1}</h3>
+                                <div key={index} className="p-4 border border-border rounded-xl bg-secondary/20 relative">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h3 className="font-bold text-lg">UMKM {index + 1}</h3>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                showConfirmAction('Hapus UMKM?', 'Tindakan ini akan menghapus data UMKM ini secara permanen.', 'Hapus', '#ef4444', () => {
+                                                    const newData = { ...data };
+                                                    newData.umkm.splice(index, 1);
+                                                    saveData(newData);
+                                                });
+                                            }}
+                                            className="text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1"
+                                        >
+                                            <Trash2 className="w-4 h-4" /> Hapus
+                                        </button>
+                                    </div>
                                     <div className="space-y-3">
-                                        <div className="flex gap-4 items-center">
-                                            <img src={Array.isArray(item.img) ? item.img[0] : item.img} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-2 border-secondary" />
-                                            <div className="flex-1">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handlePhotoUploadBase64(e, (dataUrl) => {
-                                                        const newArr = Array.isArray(item.img) ? [...item.img] : [item.img];
-                                                        newArr[0] = dataUrl;
-                                                        handleArrayChange('umkm', index, 'img', newArr);
-                                                    })}
-                                                    className="w-full px-4 py-2 text-sm rounded-xl border border-border bg-background"
-                                                />
-                                                <p className="text-[10px] text-muted-foreground mt-1">Mengganti foto utama / foto pertama UMKM ini.</p>
-                                            </div>
-                                        </div>
                                         <input
                                             type="text"
                                             value={item.judul}
@@ -1506,9 +1760,142 @@ function AdminPotensi() {
                                             rows="3"
                                             className="w-full px-4 py-2 rounded-xl border border-border bg-background"
                                         />
+
+                                        <div className="mt-4 pt-4 border-t border-border">
+                                            <label className="block text-sm font-semibold mb-2">Galeri Foto Produk (Slide)</label>
+                                            <div className="flex gap-2 overflow-x-auto pb-4">
+                                                {(Array.isArray(item.img) ? item.img : (item.img ? [item.img] : [])).map((imgUrl, fIdx) => (
+                                                    <div key={fIdx} className="relative group shrink-0 w-24 h-24">
+                                                        <img src={imgUrl} alt={`Foto ${fIdx + 1}`} className="w-full h-full object-cover rounded-xl border border-border" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const newArr = Array.isArray(item.img) ? [...item.img] : (item.img ? [item.img] : []);
+                                                                newArr.splice(fIdx, 1);
+                                                                handleArrayChange('umkm', index, 'img', newArr);
+                                                            }}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-lg"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                <label className="shrink-0 w-24 h-24 flex items-center justify-center bg-background border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-secondary/50 transition-colors">
+                                                    <Plus className="w-6 h-6 text-muted-foreground" />
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => handlePhotoUploadBase64(e, (dataUrl) => {
+                                                            const newArr = Array.isArray(item.img) ? [...item.img] : (item.img ? [item.img] : []);
+                                                            newArr.push(dataUrl);
+                                                            handleArrayChange('umkm', index, 'img', newArr);
+                                                        })}
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 pt-4 border-t border-border">
+                                            <h4 className="font-bold text-sm mb-3">Tautan Tambahan (Instagram & Lokasi)</h4>
+
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="text-xs font-semibold block mb-1">Link Profil Instagram</label>
+                                                    <input
+                                                        type="text"
+                                                        value={item.instagram || ''}
+                                                        onChange={(e) => handleArrayChange('umkm', index, 'instagram', e.target.value)}
+                                                        className="w-full px-4 py-2 text-sm rounded-xl border border-border bg-background"
+                                                        placeholder="https://www.instagram.com/..."
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="text-xs font-semibold block mb-1">Link Google Maps (Lokasi Toko)</label>
+                                                    <input
+                                                        type="text"
+                                                        value={item.mapsUrl || ''}
+                                                        onChange={(e) => handleArrayChange('umkm', index, 'mapsUrl', e.target.value)}
+                                                        className="w-full px-4 py-2 text-sm rounded-xl border border-border bg-background"
+                                                        placeholder="https://maps.app.goo.gl/..."
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="text-xs font-semibold block mb-1">Video Instagram Reels (Multiple)</label>
+                                                    <div className="flex flex-col gap-2">
+                                                        {(item.reels || []).map((reelId, rIdx) => (
+                                                            <div key={rIdx} className="flex items-center gap-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={reelId}
+                                                                    onChange={(e) => {
+                                                                        const newReels = [...(item.reels || [])];
+                                                                        newReels[rIdx] = e.target.value;
+                                                                        handleArrayChange('umkm', index, 'reels', newReels);
+                                                                    }}
+                                                                    className="flex-1 px-4 py-2 text-sm rounded-xl border border-border bg-background"
+                                                                    placeholder="ID Reel (Contoh: DUj4Mmbk56_)"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const newReels = [...(item.reels || [])];
+                                                                        newReels.splice(rIdx, 1);
+                                                                        handleArrayChange('umkm', index, 'reels', newReels);
+                                                                    }}
+                                                                    className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+                                                                >
+                                                                    <X className="w-4 h-4" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const newReels = [...(item.reels || [])];
+                                                                newReels.push('');
+                                                                handleArrayChange('umkm', index, 'reels', newReels);
+                                                            }}
+                                                            className="self-start text-xs bg-secondary text-foreground px-3 py-1.5 rounded-lg flex items-center gap-1 font-semibold hover:bg-secondary/70 transition-colors"
+                                                        >
+                                                            <Plus className="w-3 h-3" /> Tambah ID Reel IG
+                                                        </button>
+                                                        <span className="text-[10px] text-muted-foreground mt-1 text-justify">
+                                                            Masukkan <strong className="text-primary">ID Reels</strong> saja. Contoh pada link <i>https://www.instagram.com/reel/ID_REEL_DISINI/?...</i> maka cukup tulis ID_REEL_DISINI
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             ))}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const newData = { ...data };
+                                    newData.umkm.push({
+                                        img: [],
+                                        judul: 'Nama UMKM Baru',
+                                        deskripsi: 'Deskripsi UMKM...',
+                                        detail: [
+                                            { label: 'Varian Produk', nilai: '-' },
+                                            { label: 'Kisaran Harga', nilai: '-' },
+                                            { label: 'Kontak Pemesanan', nilai: '-' },
+                                        ],
+                                        reels: [],
+                                        instagram: '',
+                                        mapsUrl: ''
+                                    });
+                                    saveData(newData);
+                                }}
+                                className="w-full py-4 border-2 border-dashed border-primary text-primary font-bold rounded-xl hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Plus className="w-5 h-5" /> Tambah UMKM Baru
+                            </button>
                         </div>
                     )}
 
@@ -1518,17 +1905,19 @@ function AdminPotensi() {
                                 <div key={index} className="p-4 border border-border rounded-xl bg-secondary/20">
                                     <h3 className="font-bold text-lg mb-3">{item.judul}</h3>
                                     <div className="space-y-3">
-                                        <div className="flex gap-4 items-center">
-                                            <img src={(item.fotoUrl && item.fotoUrl.length > 5) ? item.fotoUrl : 'https://placehold.co/100x100/e2e8f0/475569?text=Kosong'} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-2 border-secondary shrink-0 bg-background" onError={(e) => { e.target.src = 'https://placehold.co/100x100/e2e8f0/475569?text=Gagal' }} />
-                                            <div className="flex-1">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handlePhotoUploadBase64(e, (dataUrl) => handleArrayChange('fasilitas', index, 'fotoUrl', dataUrl))}
-                                                    className="w-full px-4 py-2 text-sm rounded-xl border border-border bg-background"
-                                                />
+                                        {item.judul !== 'Sekolah' && item.judul !== 'Masjid' && (
+                                            <div className="flex gap-4 items-center mb-2">
+                                                <img src={(item.fotoUrl && item.fotoUrl.length > 5) ? item.fotoUrl : 'https://placehold.co/100x100/e2e8f0/475569?text=Kosong'} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-2 border-secondary shrink-0 bg-background" onError={(e) => { e.target.src = 'https://placehold.co/100x100/e2e8f0/475569?text=Gagal' }} />
+                                                <div className="flex-1">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handlePhotoUploadBase64(e, (dataUrl) => handleArrayChange('fasilitas', index, 'fotoUrl', dataUrl))}
+                                                        className="w-full px-4 py-2 text-sm rounded-xl border border-border bg-background"
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                         <input
                                             type="text"
                                             value={item.judul}
@@ -1541,6 +1930,84 @@ function AdminPotensi() {
                                             rows="3"
                                             className="w-full px-4 py-2 rounded-xl border border-border bg-background"
                                         />
+
+                                        <div className="mt-4 pt-4 border-t border-border">
+                                            <h4 className="font-bold text-sm mb-3">Sub Bagian / Daftar Tempat Khusus (Opsional)</h4>
+                                            <p className="text-xs text-muted-foreground mb-4">Tambahkan sub-tempat bila fasilitas ini mencakup banyak lokasi (seperti menu Sekolah/Masjid yang memiliki banyak entitas didalamnya).</p>
+                                            <div className="space-y-4">
+                                                {(item.daftarTempat || []).map((subItem, subIdx) => (
+                                                    <div key={subIdx} className="p-3 border border-border rounded-lg bg-background relative shadow-sm">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                showConfirmAction('Hapus Sub Tempat?', 'Tindakan ini akan menghapusnya dari daftar.', 'Hapus', '#ef4444', () => {
+                                                                    const newDaftar = [...(item.daftarTempat || [])];
+                                                                    newDaftar.splice(subIdx, 1);
+                                                                    handleArrayChange('fasilitas', index, 'daftarTempat', newDaftar);
+                                                                });
+                                                            }}
+                                                            className="absolute top-3 right-3 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 p-1.5 rounded-md transition-colors"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+
+                                                        <div className="flex gap-4 mb-3 items-start pe-10">
+                                                            <img src={(subItem.fotoUrl && subItem.fotoUrl.length > 5) ? subItem.fotoUrl : 'https://placehold.co/100x100/e2e8f0/475569?text=Kosong'} alt="Sub" className="w-16 h-16 object-cover rounded-md border" />
+                                                            <div className="w-full">
+                                                                <input
+                                                                    type="text"
+                                                                    value={subItem.judul}
+                                                                    onChange={(e) => {
+                                                                        const newDaftar = [...(item.daftarTempat || [])];
+                                                                        newDaftar[subIdx].judul = e.target.value;
+                                                                        handleArrayChange('fasilitas', index, 'daftarTempat', newDaftar);
+                                                                    }}
+                                                                    className="w-full px-3 py-2 text-sm font-semibold rounded border border-border bg-secondary/30 mb-2"
+                                                                    placeholder="Nama Tempat (Cth: SD Negeri Sukatani)"
+                                                                />
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    onChange={(e) => handlePhotoUploadBase64(e, (dataUrl) => {
+                                                                        const newDaftar = [...(item.daftarTempat || [])];
+                                                                        newDaftar[subIdx].fotoUrl = dataUrl;
+                                                                        handleArrayChange('fasilitas', index, 'daftarTempat', newDaftar);
+                                                                    })}
+                                                                    className="w-full text-xs"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <textarea
+                                                            value={subItem.deskripsi}
+                                                            onChange={(e) => {
+                                                                const newDaftar = [...(item.daftarTempat || [])];
+                                                                newDaftar[subIdx].deskripsi = e.target.value;
+                                                                handleArrayChange('fasilitas', index, 'daftarTempat', newDaftar);
+                                                            }}
+                                                            rows="2"
+                                                            className="w-full px-3 py-2 text-xs rounded border border-border bg-secondary/30"
+                                                            placeholder="Deskripsi singkat..."
+                                                        />
+                                                    </div>
+                                                ))}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newDaftar = [...(item.daftarTempat || [])];
+                                                        newDaftar.push({
+                                                            judul: 'Nama Tempat Baru',
+                                                            fotoUrl: '',
+                                                            deskripsi: ''
+                                                        });
+                                                        handleArrayChange('fasilitas', index, 'daftarTempat', newDaftar);
+                                                    }}
+                                                    className="w-full py-3 border-2 border-dashed border-primary/50 text-primary text-sm font-semibold rounded-lg hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    <Plus className="w-4 h-4" /> Tambah Sub Tempat Baru
+                                                </button>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             ))}
@@ -1597,6 +2064,70 @@ function AdminPotensi() {
                                             })}
                                         />
                                     </label>
+                                </div>
+                            </div>
+
+                            <div className="p-4 border border-border rounded-xl bg-secondary/20">
+                                <h3 className="font-bold text-lg mb-3">Dokumentasi Video Desa (YouTube)</h3>
+                                <p className="text-xs text-muted-foreground mb-4">Kelola tautan video YouTube (contoh ID: bIVFx6VNN4s) yang tampil di galeri potensi desa.</p>
+                                <div className="space-y-4">
+                                    {(data.galeri.video?.daftar || []).map((video, index) => (
+                                        <div key={index} className="flex flex-col md:flex-row gap-4 items-start md:items-center bg-background p-3 rounded-lg border border-border">
+                                            <div className="flex-1 w-full space-y-2">
+                                                <input
+                                                    type="text"
+                                                    value={video.judul}
+                                                    onChange={(e) => {
+                                                        const newData = { ...data };
+                                                        newData.galeri.video.daftar[index].judul = e.target.value;
+                                                        setData(newData);
+                                                    }}
+                                                    placeholder="Judul Video..."
+                                                    className="w-full px-3 py-2 text-sm rounded border border-border bg-secondary/10"
+                                                />
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-muted-foreground bg-secondary/30 px-2 py-1 rounded">ID YouTube:</span>
+                                                    <input
+                                                        type="text"
+                                                        value={video.videoId}
+                                                        onChange={(e) => {
+                                                            const newData = { ...data };
+                                                            newData.galeri.video.daftar[index].videoId = e.target.value;
+                                                            setData(newData);
+                                                        }}
+                                                        placeholder="Contoh: bIVFx6VNN4s"
+                                                        className="flex-1 w-full px-3 py-1 text-sm rounded border border-border bg-secondary/10"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    showConfirmAction('Hapus Video?', 'Tindakan ini akan menghapus video dari galeri.', 'Hapus', '#ef4444', () => {
+                                                        const newData = { ...data };
+                                                        newData.galeri.video.daftar.splice(index, 1);
+                                                        setData(newData);
+                                                    });
+                                                }}
+                                                className="w-full md:w-auto px-4 py-2 bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white rounded-lg transition-colors flex justify-center items-center gap-2"
+                                            >
+                                                <Trash2 className="w-4 h-4" /> <span className="text-sm font-semibold">Hapus</span>
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const newData = { ...data };
+                                            if (!newData.galeri.video) newData.galeri.video = { judul: 'Dokumentasi', daftar: [] };
+                                            newData.galeri.video.daftar.push({ judul: 'Video YouTube Desa Baru', videoId: '' });
+                                            setData(newData);
+                                        }}
+                                        className="w-full py-3 border-2 border-dashed border-red-500/50 text-red-500 text-sm font-semibold rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <Plus className="w-4 h-4" /> Tambah Video YouTube Baru
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1871,7 +2402,7 @@ function AdminKontak() {
 
             <div className="p-6">
                 <p className="text-sm text-green-600 mb-6 flex items-center gap-1">✅ Tersinkron secara <i>Real-Time</i> dengan halaman Kontak dan Footer.</p>
-                
+
                 <form onSubmit={saveData} className="space-y-6 max-w-4xl">
                     {subTab === 'informasi' && (
                         <div className="space-y-6">
